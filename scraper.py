@@ -1,12 +1,9 @@
-from robobrowser import RoboBrowser
-import requests
-import json
-from bs4 import BeautifulSoup
+import json  # or `import simplejson as json` if on Python < 2.6
 import random
-from pymongo import MongoClient
-import datetime
-from tqdm import tqdm
-import re
+import time
+
+import requests
+from robobrowser import RoboBrowser
 
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
@@ -23,15 +20,20 @@ browser = RoboBrowser(session=session, user_agent=random.choice(HEADERS_LIST), p
 page = 1
 url = "https://github.com/search?l=Java&o=desc&p=" + str(page) + "&q=java&s=stars&type=Repositories"
 browser.open(url)
+results = browser.find_all("a", class_="v-align-middle")
+
 while len(link) < 100:
     browser.open(url)
     results = browser.find_all("a", {"class": "v-align-middle"})
-    print(len(results))
-    page = page + 1
+    while len(results) == 0:
+        time.sleep(5)
     url = "https://github.com/search?l=Java&o=desc&p=" + str(page) + "&q=java&s=stars&type=Repositories"
-    for items in results:
-        link.append(items)
-    print(len(link))
-    print(page)
+    for item in results:
+        jsonobj = item.get('data-hydro-click')
+        obj = json.loads(jsonobj)
+        obj = obj['payload']['result']['url']
+        print(obj)
+        link.append(obj)
+    page = page + 1
 
 print(link)
