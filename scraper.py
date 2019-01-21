@@ -1,9 +1,13 @@
 import json  # or `import simplejson as json` if on Python < 2.6
+import os
 import random
 import time
-
+import shutil
 import requests
 from robobrowser import RoboBrowser
+import os
+from glob import glob
+
 
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
@@ -21,6 +25,8 @@ page = 1
 url = "https://github.com/search?l=Java&o=desc&p=" + str(page) + "&q=java&s=stars&type=Repositories"
 browser.open(url)
 results = browser.find_all("a", class_="v-align-middle")
+temp_dir = "/home/manny/PycharmProjects/GithubScraper/temp"
+javacode_dir = '/home/manny/PycharmProjects/GithubScraper/java_code_files'
 
 while len(link) < 100:
     browser.open(url)
@@ -33,6 +39,39 @@ while len(link) < 100:
         obj = json.loads(jsonobj)
         obj = obj['payload']['result']['url']
         print(obj)
+        try:
+            os.makedirs(javacode_dir + "/" + obj.rsplit('/', 1)[-1])
+        except:
+            pass
+        clone = "git clone " + obj + ".git"
+
+        os.chdir(temp_dir)  # Specifying the path where the cloned project needs to be copied
+        os.system(clone)  # Cloning
+        temp_subfiles = []
+
+        pattern = "*.java"
+
+        for dir, _, _ in os.walk(temp_dir):
+            temp_subfiles.extend(glob(os.path.join(dir, pattern)))
+
+
+        for file in temp_subfiles:
+            filename, file_extension = os.path.splitext(file)
+            if file_extension == ".java":
+                print(file)
+                try:
+                    shutil.move(file, javacode_dir + "/" + obj.rsplit('/', 1)[-1])
+                except:
+                    pass
+        for the_file in os.listdir(temp_dir):
+            file_path = os.path.join(temp_dir, the_file)
+            try:
+                if os.path.isfile(file_path):
+                    os.unlink(file_path)
+            except Exception as e:
+                print(e)
+
+
         link.append(obj)
     page = page + 1
 
