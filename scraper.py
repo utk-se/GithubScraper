@@ -8,7 +8,6 @@ from robobrowser import RoboBrowser
 import os
 from glob import glob
 
-
 HEADERS_LIST = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; x64; fr; rv:1.9.2.13) Gecko/20101203 Firebird/3.6.13',
     'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
@@ -21,7 +20,7 @@ link = []
 
 session = requests.Session()
 browser = RoboBrowser(session=session, user_agent=random.choice(HEADERS_LIST), parser="lxml")
-page = 1
+page = 3
 url = "https://github.com/search?l=Java&o=desc&p=" + str(page) + "&q=java&s=stars&type=Repositories"
 browser.open(url)
 results = browser.find_all("a", class_="v-align-middle")
@@ -54,11 +53,10 @@ while len(link) < 100:
         for dir, _, _ in os.walk(temp_dir):
             temp_subfiles.extend(glob(os.path.join(dir, pattern)))
 
-
         for file in temp_subfiles:
             filename, file_extension = os.path.splitext(file)
             if file_extension == ".java":
-                print(file)
+                # print(file)
                 try:
                     shutil.move(file, javacode_dir + "/" + obj.rsplit('/', 1)[-1])
                 except:
@@ -69,10 +67,10 @@ while len(link) < 100:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
             except Exception as e:
-                print(e)
+        # print(e)
+                pass
 
-
-        link.append(obj)
+    link.append(obj)
     page = page + 1
 
-print(link)
+# print(link)
