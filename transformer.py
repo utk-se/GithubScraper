@@ -1,7 +1,3 @@
-import javalang
-import os
-import re
-from glob import glob
 import os
 import re
 from glob import glob
@@ -30,6 +26,11 @@ for file in temp_subfiles:
         tree = javalang.parse.parse(data)
         for codeblock in tree.children:
             print(codeblock)
+            print("===============")
+            for proto in codeblock:
+                print(proto)
+                print("*************")
+
         # tokens = list(javalang.tokenizer.tokenize(data))
         # for token in tokens:
         #     print(token.value)
